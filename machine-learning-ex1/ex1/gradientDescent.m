@@ -25,7 +25,8 @@ for iter = 1:num_iters
     %theta(2) = temp1;
     
     % This vectorized form will work for any number of features
-    theta = theta - alpha * 1 / m * sum((X' * ( X * theta - y )), 2);
+    %theta = theta - alpha * 1 / m * sum((X' * ( X * theta - y )), 2);
+    theta = theta - alpha * 1 / m * X' * ( X * theta - y );
 
     % ============================================================
 
