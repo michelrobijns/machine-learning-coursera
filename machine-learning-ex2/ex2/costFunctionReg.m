@@ -8,7 +8,7 @@ function [J, grad] = costFunctionReg(theta, X, y, lambda)
 m = length(y); % number of training examples
 
 % You need to return the following variables correctly 
-J = 0;
+%J = 0;
 grad = zeros(size(theta));
 
 % ====================== YOUR CODE HERE ======================
@@ -17,10 +17,18 @@ grad = zeros(size(theta));
 %               Compute the partial derivatives and set grad to the partial
 %               derivatives of the cost w.r.t. each parameter in theta
 
+% Store the output of the sigmoid function to avoid the overhead of running
+% the same computation several times
+h = sigmoid(X * theta);
 
+% Non-vectorized cost function
+%J = 1 / m * sum(-y .* log(h) - (1 - y) .* log(1 - h)) + lambda / (2 * m) * sum(theta(2:end) .* theta(2:end));
 
+% Vectorized cost function
+J = 1 / m * (-y' * log(h) - (1 - y)' * log(1 - h)) + lambda / (2 * m) * (theta(2:end)' * theta(2:end));
 
-
+grad(1) = 1 / m * X(:, 1)' * (h - y);
+grad(2:end) = 1 / m * X(:, 2:end)' * (h - y) + lambda / m * theta(2:end);
 
 % =============================================================
 
