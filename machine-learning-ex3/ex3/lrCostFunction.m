@@ -36,14 +36,16 @@ grad = zeros(size(theta));
 %           grad = grad + YOUR_CODE_HERE (using the temp variable)
 %
 
+% Store the output of the sigmoid function to avoid the overhead of running
+% it twice
+h = sigmoid(X * theta);
 
+% Vectorized cost function
+J = 1 / m * (-y' * log(h) - (1 - y)' * log(1 - h)) + lambda / (2 * m) * (theta(2:end)' * theta(2:end));
 
-
-
-
-
-
-
+% Vectorized gradient
+grad(1) = 1 / m * X(:, 1)' * (h - y);
+grad(2:end) = 1 / m * X(:, 2:end)' * (h - y) + lambda / m * theta(2:end);
 
 % =============================================================
 
