@@ -1,8 +1,8 @@
-function [J grad] = nnCostFunction(nn_params, ...
-                                   input_layer_size, ...
-                                   hidden_layer_size, ...
-                                   num_labels, ...
-                                   X, y, lambda)
+function [J, grad] = nnCostFunction(nn_params, ...
+                                    input_layer_size, ...
+                                    hidden_layer_size, ...
+                                    num_labels, ...
+                                    X, y, lambda)
 %NNCOSTFUNCTION Implements the neural network cost function for a two layer
 %neural network which performs classification
 %   [J grad] = NNCOSTFUNCTON(nn_params, hidden_layer_size, num_labels, ...
@@ -27,8 +27,8 @@ m = size(X, 1);
          
 % You need to return the following variables correctly 
 J = 0;
-Theta1_grad = zeros(size(Theta1));
-Theta2_grad = zeros(size(Theta2));
+%Theta1_grad = zeros(size(Theta1));
+%Theta2_grad = zeros(size(Theta2));
 
 % ====================== YOUR CODE HERE ======================
 % Instructions: You should complete the code by working through the
@@ -64,78 +64,49 @@ Theta2_grad = zeros(size(Theta2));
 
 % Forward propagation
 a1 = [ones(m, 1) X];
-
 z2 = a1 * Theta1';
 a2 = [ones(m, 1) sigmoid(z2)];
+a3 = sigmoid(a2 * Theta2');
 
-z3 = a2 * Theta2';
-a3 = sigmoid(z3);
-
-h = a3;
-
+% Find the number of output categories
 K = size(a3, 2);
 
-% for i = 1:m
-%     yVec = zeros(1, K);
-%     yVec(y(i)) = 1;
-%     
-%     for k = 1:K
-%         J = J + 1 / m * ((-yVec(k) * log(h(i,k))) - (1 - yVec(k)) * log(1 - h(i,k)));
-%     end
-% end
-
-% for i = 1:m
-%     yVec = zeros(1, K);
-%     yVec(y(i)) = 1;
-%     
-%     J = J + 1 / m * ((-yVec * log(h(i,:))') - (1 - yVec) * log(1 - h(i,:))');
-% end
-
-for i = 1:m
-    yVec = zeros(1, K);
-    yVec(y(i)) = 1;
-    
-    J = J + 1 / m * ((-yVec * log(h(i,:))') - (1 - yVec) * log(1 - h(i,:))');
-end
-
-J = J + lambda / (2 * m) * (sum(sum(Theta1(:, 2:end) .* Theta1(:, 2:end))) + sum(sum(Theta2(:, 2:end) .* Theta2(:, 2:end))));
-
-
-
+% Preallocate storage
+Y = zeros(size(y, 1), K);
 Delta1 = zeros(size(Theta1));
 Delta2 = zeros(size(Theta2));
 
-for i = 1:m % 1:5000
+% Generate the output matrix
+for i = 1:m
+    Y(i, y(i)) = 1;
+end
+
+% Trying something
+%delta3 = a3 - Y;
+%delta2 = Theta2' * delta3' .* sigmoidGradient([ones(m, 1) z2]');
+%delta2 = delta2(2:end, :);
+
+% Loop over the samples
+for i = 1:m
+    % Update the cost function
+    J = J + 1 / m * ((-Y(i, :) * log(a3(i,:))') - (1 - Y(i, :)) * log(1 - a3(i,:))');
     
-    % 1. Forward propagation
-    a_1 = [1 X(i, :)]';
-    
-    z_2 = Theta1 * a_1;
-    a_2 = [1; sigmoid(z_2)];
-    
-    z_3 = Theta2 * a_2;
-    a_3 = sigmoid(z_3);
-    
-    % 2.
-    
-    yVec = zeros(K, 1);
-    yVec(y(i)) = 1;
-    
-    delta3 = a_3 - yVec;
-    delta2 = Theta2' * delta3 .* sigmoidGradient([1; z_2]);
-    
-    % 3.
-        
+    % Backward propagation  
+    delta3 = a3(i, :)' - Y(i, :)';
+    delta2 = Theta2' * delta3 .* sigmoidGradient([1; z2(i, :)']);
     delta2 = delta2(2:end);
     
-    Delta1 = Delta1 + delta2 * a_1';
-    Delta2 = Delta2 + delta3 * a_2';
+    Delta1 = Delta1 + delta2 * a1(i, :);
+    Delta2 = Delta2 + delta3 * a2(i, :);
 end
 
 Theta1_grad = 1 / m * Delta1;
 Theta2_grad = 1 / m * Delta2;
 
-% Regularization
+% Regularizion of the cost function
+J = J + lambda / (2 * m) * (sum(sum(Theta1(:, 2:end) .* Theta1(:, 2:end))) + sum(sum(Theta2(:, 2:end) .* Theta2(:, 2:end))));
+
+% Regularization of the gradients
 Theta1_grad = Theta1_grad + lambda / m * [zeros(size(Theta1, 1), 1) Theta1(:, 2:end)];
 Theta2_grad = Theta2_grad + lambda / m * [zeros(size(Theta2, 1), 1) Theta2(:, 2:end)];
 
