@@ -110,8 +110,8 @@ for i = 1:m % 1:5000
     % 1. Forward propagation
     a_1 = [1 X(i, :)]';
     
-    z_2 = [1; Theta1 * a_1];
-    a_2 = sigmoid(z_2);
+    z_2 = Theta1 * a_1;
+    a_2 = [1; sigmoid(z_2)];
     
     z_3 = Theta2 * a_2;
     a_3 = sigmoid(z_3);
@@ -122,7 +122,7 @@ for i = 1:m % 1:5000
     yVec(y(i)) = 1;
     
     delta3 = a_3 - yVec;
-    delta2 = Theta2' * delta3 .* sigmoidGradient(z_2);
+    delta2 = Theta2' * delta3 .* sigmoidGradient([1; z_2]);
     
     % 3.
         
@@ -135,12 +135,15 @@ end
 Theta1_grad = 1 / m * Delta1;
 Theta2_grad = 1 / m * Delta2;
 
+% Regularization
+Theta1_grad = Theta1_grad + lambda / m * [zeros(size(Theta1, 1), 1) Theta1(:, 2:end)];
+Theta2_grad = Theta2_grad + lambda / m * [zeros(size(Theta2, 1), 1) Theta2(:, 2:end)];
+
 % -------------------------------------------------------------
 
 % =========================================================================
 
 % Unroll gradients
 grad = [Theta1_grad(:) ; Theta2_grad(:)];
-
 
 end
