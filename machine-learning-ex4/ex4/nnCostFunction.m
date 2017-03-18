@@ -62,23 +62,78 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
+% Forward propagation
+a1 = [ones(m, 1) X];
+
+z2 = a1 * Theta1';
+a2 = [ones(m, 1) sigmoid(z2)];
+
+z3 = a2 * Theta2';
+a3 = sigmoid(z3);
+
+h = a3;
+
+K = size(a3, 2);
+
+% for i = 1:m
+%     yVec = zeros(1, K);
+%     yVec(y(i)) = 1;
+%     
+%     for k = 1:K
+%         J = J + 1 / m * ((-yVec(k) * log(h(i,k))) - (1 - yVec(k)) * log(1 - h(i,k)));
+%     end
+% end
+
+% for i = 1:m
+%     yVec = zeros(1, K);
+%     yVec(y(i)) = 1;
+%     
+%     J = J + 1 / m * ((-yVec * log(h(i,:))') - (1 - yVec) * log(1 - h(i,:))');
+% end
+
+for i = 1:m
+    yVec = zeros(1, K);
+    yVec(y(i)) = 1;
+    
+    J = J + 1 / m * ((-yVec * log(h(i,:))') - (1 - yVec) * log(1 - h(i,:))');
+end
+
+J = J + lambda / (2 * m) * (sum(sum(Theta1(:, 2:end) .* Theta1(:, 2:end))) + sum(sum(Theta2(:, 2:end) .* Theta2(:, 2:end))));
 
 
 
+Delta1 = zeros(size(Theta1));
+Delta2 = zeros(size(Theta2));
 
+for i = 1:m % 1:5000
+    
+    % 1. Forward propagation
+    a_1 = [1 X(i, :)]';
+    
+    z_2 = [1; Theta1 * a_1];
+    a_2 = sigmoid(z_2);
+    
+    z_3 = Theta2 * a_2;
+    a_3 = sigmoid(z_3);
+    
+    % 2.
+    
+    yVec = zeros(K, 1);
+    yVec(y(i)) = 1;
+    
+    delta3 = a_3 - yVec;
+    delta2 = Theta2' * delta3 .* sigmoidGradient(z_2);
+    
+    % 3.
+        
+    delta2 = delta2(2:end);
+    
+    Delta1 = Delta1 + delta2 * a_1';
+    Delta2 = Delta2 + delta3 * a_2';
+end
 
-
-
-
-
-
-
-
-
-
-
-
-
+Theta1_grad = 1 / m * Delta1;
+Theta2_grad = 1 / m * Delta2;
 
 % -------------------------------------------------------------
 
