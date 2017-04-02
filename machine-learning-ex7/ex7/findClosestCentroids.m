@@ -21,13 +21,24 @@ idx = zeros(size(X,1), 1);
 % Note: You can use a for-loop over the examples to compute this.
 %
 
+% Useful variables
+[m, ~] = size(X);
 
+% Preallocate memory for the squared distances
+dist = zeros(K, 1);
 
-
-
-
+% Loop over the training examples
+for i = 1:m
+    % Loop over the centroids
+    for j = 1:K
+        % Compute the squared distance to centroid
+        dist(j) = norm(X(i,:) - centroids(j,:))^2;
+    end
+    
+    % Find the index of the closest centroid
+    [~, idx(i)] = min(dist);
+end
 
 % =============================================================
 
 end
-

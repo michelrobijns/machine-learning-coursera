@@ -5,11 +5,11 @@ function [U, S] = pca(X)
 %
 
 % Useful values
-[m, n] = size(X);
+[m, ~] = size(X);
 
 % You need to return the following variables correctly.
-U = zeros(n);
-S = zeros(n);
+%U = zeros(n);
+%S = zeros(n);
 
 % ====================== YOUR CODE HERE ======================
 % Instructions: You should first compute the covariance matrix. Then, you
@@ -20,11 +20,11 @@ S = zeros(n);
 %       number of examples).
 %
 
+% Compute the covariance matrix
+Sigma = 1 / m * (X' * X);
 
-
-
-
-
+% Perform singular value decomposition
+[U, S, ~] = svd(Sigma);
 
 % =========================================================================
 
